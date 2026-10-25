@@ -1,0 +1,54 @@
+{
+  "flags": 32768,
+  "components": [
+    {
+      "type": 17,
+      "components": [
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1517936695226663053/1564005370890948739/HCSO_Verify.png?ex=6adfb102&is=6ade5f82&hm=a140a92abaa014aa8cf82466e0aa309ff2b79a72ab5201a976a91c3d5438df74&=&format=webp&quality=lossless"
+              }
+            }
+          ]
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 10,
+          "content": "Link your Roblox account to access **Hillsborough County Sheriff's Office**. Click the button below and complete the secure verification process through Dock. If any issues occur please speak to a support member."
+        },
+        {
+          "type": 9,
+          "components": [
+            { "type": 10, "content": "Verify using the button here:" }
+          ],
+          "accessory": {
+            "type": 2,
+            "style": 2,
+            "label": "Begin Verification",
+            "custom_id": "verify1:begin"
+          }
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1517936695226663053/1564006727135924354/z8zyStIfmOEAQAAAABJRU5ErkJggg.png?ex=6adfb245&is=6ade60c5&hm=521a33a4c3b5606e881c76d2c76b4fae7d8442099950070010a4fa83405fa76e&=&format=webp&quality=lossless&width=768&height=46"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

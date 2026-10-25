@@ -1,0 +1,14 @@
+{
+  "name": "HCSO-Automations",
+  "version": "2.0.0",
+  "description": "Bot for HCSO.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^17.4.2"
+  }
+}

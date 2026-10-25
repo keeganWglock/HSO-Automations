@@ -1,0 +1,42 @@
+{
+  "flags": 32768,
+  "components": [
+    {
+      "type": 17,
+      "components": [
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1517936695226663053/1564005371713167400/HCSO_Careers.png?ex=6adfb102&is=6ade5f82&hm=011e35fb76a3d21284eeb7a57adef67346ab3e59d9fca09f8e462b5c20da18f4&=&format=webp&quality=lossless"
+              }
+            }
+          ]
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 10,
+          "content": "# Careers\n\nHere at the Hillsbourough County Sheriff's Office, we are here to bring you the best way for a job. HCSO offers multiple of opportunities to fit your needs. We offer from road side assistance, towing, maintenance, and some cool things like road way constructions. If you get accepted you will go through both a training, and a instruction section. \n\n**Requirements:**\n- 13 or older\n- Active\n- Willing to fulfill duties\n- Able to work under stress\n- Must act within server rules\n- Mature & Professional"
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1517936695226663053/1564006727135924354/z8zyStIfmOEAQAAAABJRU5ErkJggg.png?ex=6adfb245&is=6ade60c5&hm=521a33a4c3b5606e881c76d2c76b4fae7d8442099950070010a4fa83405fa76e&=&format=webp&quality=lossless&width=768&height=46"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
