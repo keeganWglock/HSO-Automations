@@ -49,18 +49,34 @@ const QUESTIONS = [
   },
   {
     id: 'q4',
-    label: 'Broken-down vehicle scenario',
-    description: 'A car is broken down on the roadside. How do you approach it? (3+ sentences)',
+    label: '10-11 Situation',
+    description: 'You pull someone over for felony speeding (3+ sentences)',
     question:
-      'You get a call that a car has broken down on the side of the road. How would you approach this? (3+ sentences)',
+      'You pull someone over for felony speeding. How do you handle the situation? (3+ sentences)',
     min: 60,
   },
   {
     id: 'q5',
-    label: 'Police vehicle scenario',
-    description: "Cops had you tow an arrested criminal's car but never searched it. Your approach? (3+ sentences)",
+    label: 'What is a 10-80?',
+    description: "Explain what a 10-80 is.",
     question:
-      "Police ask you to pick up an arrested criminal's car and say it's fine to take it to the depot, but it was never searched and you've already brought it to the yard. How would you approach this? (3+ sentences)",
+      "What is a 10-80?",
+    min: 60,
+  },
+  {
+    id: 'q6',
+    label: 'What is a 10-26?',
+    description: "Explain what a 10-26 is.",
+    question:
+      "What is a 10-26? (3+ sentences)",
+    min: 60,
+  },
+  {
+    id: 'q7',
+    label: 'Is there anything else you would want us to know?',
+    description: "Anything else you want us to know?",
+    question:
+      "Is there anything else you would want us to know? (3+ sentences)",
     min: 60,
   },
 ];
