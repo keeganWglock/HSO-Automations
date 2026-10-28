@@ -1,0 +1,42 @@
+{
+  "flags": 32768,
+  "components": [
+    {
+      "type": 17,
+      "components": [
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1563753564512329735/1564656116854689932/HCSO_COC.png?ex=6ae20f10&is=6ae0bd90&hm=c170a4a24b4880877ece635e5b3fce599366115d188a414b873da2d9feac0590&=&format=webp&quality=lossless"
+              }
+            }
+          ]
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 10,
+          "content": "# Chain of Command\nBelow is the Hillsbourough County Sheriff's Office chain of command. The chain of command is very useful and not obeying by it may result in consequences.\n\n<@&1563753564072050809>\n<@&1563753564072050808>\n<@&1563753564067602532>\n<@&1563753564067602531>\n<@&1563753564067602530>\n\n\n<@&1563753564067602528>\n<@&1563753564067602526>\n\n<@&1563753564067602527>\n<@&1563753564067602524>\n<@&1563753564067602523>\n\n\n<@&1564096682432659548>\n<@&1563753564059336791>\n<@&1563753564059336793>\n<@&1563753564059336789>\n<@&1563976995698901003>\n\n<@&1563753564059336787>\n<@&1563753564042436626>\n\n"
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1563753564512329735/1564434601298890862/HCSO_Footer.png?ex=6ae29242&is=6ae140c2&hm=70d170fa33c51027630edd8934aad234c553429389c94ffcc5450965a336e884&=&format=webp&quality=lossless&width=768&height=46"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
