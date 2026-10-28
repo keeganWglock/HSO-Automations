@@ -1,12 +1,12 @@
 import { MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { loadTemplate } from '../utils/components.js';
 
-const MESSAGE_FILE = 'chainofcommandmessage.json';
+const MESSAGE_FILE = 'cocmessage.json';
 
 export default {
   name: 'coc',
   aliases: ['chain of command', 'c-o-c'],
-  description: 'Posts the chain of command announcement from data/chainofcommandmessage.json.',
+  description: 'Posts the chain of command announcement from data/cocmessage.json.',
   async execute(message) {
     if (!message.member?.permissions.has(PermissionFlagsBits.ManageGuild)) return;
     try {
