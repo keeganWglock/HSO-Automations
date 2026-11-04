@@ -1,0 +1,42 @@
+{
+  "flags": 32768,
+  "components": [
+    {
+      "type": 17,
+      "components": [
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1563753564512329735/1564656116456235128/HCSO_PI.png?ex=6ae36090&is=6ae20f10&hm=fcde3760201eef32a9b23338046e8f95ec3f9e98e79e55ff6c8e866032b2f449&=&format=webp&quality=lossless&width=1024&height=307"
+              }
+            }
+          ]
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 10,
+          "content": "# Probation Information \nThe following information below is for the <@&1563753564059336789> of the Hillsborough County Sheriff's Office. Included is what's best to do for your chance at passing your probation, and get moved up to a deputy. To pass you must serve at least **1 week** from your training\n\n**__To Succeed__**\n- log the required hours\n- Complete a ride-along with a supervisor\n- Receive no infractions\n- Make the right calls\n- Dont make bad decisions\n\n**__Restrictions__**\n- No pursuits without a Supervisor present\n- Standard patrol vehicles only"
+        },
+        {
+          "type": 14,
+          "spacing": 2
+        },
+        {
+          "type": 12,
+          "items": [
+            {
+              "media": {
+                "url": "https://media.discordapp.net/attachments/1563753564512329735/1564434601298890862/HCSO_Footer.png?ex=6ae3e3c2&is=6ae29242&hm=416bc9c5729d076a37342c61e0366f3842830cb2a6621174ce51e1c0487a5bfe&=&format=webp&quality=lossless&width=768&height=46"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

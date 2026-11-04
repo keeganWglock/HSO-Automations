@@ -2,7 +2,7 @@
   "1563753563677794417": {
     "serverName": "Hillsborough county sheriff's office",
     "requiredManageRoleID": "1563753564042436626",
-    "requiredAdminRoleID": "1563753564067602530,1563753564067602526",
+    "requiredAdminRoleID": "1563753564067602530",
     "onDutyRoleID": "1563974544983855214",
     "leaderboardRoleID": "1563753564042436626",
     "quotas": {
