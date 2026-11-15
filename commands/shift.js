@@ -31,6 +31,15 @@ export function isShiftButton(customId) {
   return SHIFT_BUTTON_ACTIONS.has(customId.split('_')[0]);
 }
 
+async function refreshMemberRoleCache(guild, userId) {
+  if (!guild || !userId) return null;
+  try {
+    return await guild.members.fetch(userId);
+  } catch (error) {
+    return null;
+  }
+}
+
 function hasRequiredRoleOrPermission(member, requiredRoleId) {
   if (!member) return false;
   if (member.permissions?.has(PermissionFlagsBits.Administrator)) return true;
@@ -326,6 +335,8 @@ export async function handleButton(interaction) {
   const config = getGuildConfig(interaction.guildId);
   if (!config) return ephemeral('This server is not set up in the configuration file.');
 
+  await refreshMemberRoleCache(interaction.guild, interaction.user.id);
+
   if (interaction.user.id !== userId) {
     return ephemeral("You cannot control somebody else's shift.");
   }
@@ -420,6 +431,7 @@ export default {
     const ephemeral = (content) => interaction.reply({ content, flags: MessageFlags.Ephemeral });
 
     if (!interaction.inGuild()) return ephemeral('This command can only be used in a server.');
+    await refreshMemberRoleCache(interaction.guild, interaction.user.id);
     const guildId = interaction.guildId;
     const config = getGuildConfig(guildId);
     if (!config) {
