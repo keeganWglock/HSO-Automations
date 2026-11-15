@@ -5,6 +5,7 @@ import {
   EmbedBuilder,
   InteractionContextType,
   MessageFlags,
+  PermissionFlagsBits,
   SlashCommandBuilder,
 } from 'discord.js';
 import fs from 'node:fs';
@@ -28,6 +29,14 @@ const SHIFT_BUTTON_ACTIONS = new Set([
 
 export function isShiftButton(customId) {
   return SHIFT_BUTTON_ACTIONS.has(customId.split('_')[0]);
+}
+
+function hasRequiredRoleOrPermission(member, requiredRoleId) {
+  if (!member) return false;
+  if (member.permissions?.has(PermissionFlagsBits.Administrator)) return true;
+  if (member.permissions?.has(PermissionFlagsBits.ManageGuild)) return true;
+  if (!requiredRoleId) return false;
+  return member.roles?.cache?.has(requiredRoleId) ?? false;
 }
 
 // ---------------------------------------------------------------------------
@@ -323,7 +332,7 @@ export async function handleButton(interaction) {
 
   // --- Roster wipe confirmation ---
   if (action === 'confirmwipe' || action === 'cancelwipe') {
-    if (!interaction.member?.roles?.cache?.has(config.requiredAdminRoleID)) {
+    if (!hasRequiredRoleOrPermission(interaction.member, config.requiredAdminRoleID)) {
       return ephemeral('You lack permissions to confirm this administrative wipe operation.');
     }
     if (action === 'cancelwipe') {
@@ -338,7 +347,7 @@ export async function handleButton(interaction) {
   }
 
   // --- Shift buttons ---
-  if (!interaction.member?.roles?.cache?.has(config.requiredManageRoleID)) {
+  if (!hasRequiredRoleOrPermission(interaction.member, config.requiredManageRoleID)) {
     return ephemeral('You no longer retain the required role to manipulate shifts.');
   }
 
@@ -421,7 +430,7 @@ export default {
 
     // /shift manage
     if (subcommand === 'manage') {
-      if (!interaction.member.roles.cache.has(config.requiredManageRoleID)) {
+      if (!hasRequiredRoleOrPermission(interaction.member, config.requiredManageRoleID)) {
         return ephemeral('You lack the required management role permission tier to run this command.');
       }
       const db = readDatabase(guildId);
@@ -519,14 +528,14 @@ export default {
         .setTitle('📋 Leaderboard: Activity Quotas')
         .setDescription(lines.join('\n'))
         .setColor('#ffcc00')
-        .setFooter({ text: 'Based on multi-server activity configurations data files' })
+        .setFooter({ text: 'HCSO Automations' })
         .setTimestamp();
       return interaction.editReply({ embeds: [lbEmbed], allowedMentions: { parse: [] } });
     }
 
     // /shift admin
     if (subcommand === 'admin') {
-      if (!interaction.member.roles.cache.has(config.requiredAdminRoleID)) {
+      if (!hasRequiredRoleOrPermission(interaction.member, config.requiredAdminRoleID)) {
         return ephemeral('You lack the administrative role security tier parameters.');
       }
 

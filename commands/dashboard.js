@@ -31,7 +31,10 @@ export const SUPPORT_ROLE_ID = '1563753564067602530'; // staff who can see, clai
 const TICKET_LOG_CHANNEL_ID = '1563753564512329732'; // closed-ticket logs go here
 
 const DASHBOARD_FILE = 'dashboardmessage.json';
-const SUPPORT_FILE = 'supportmessage.json';
+const SUPPORT_FILES = {
+  general: 'supportmessagegeneral.json',
+  hr: 'supportmessagehr.json',
+};
 const DELETE_DELAY_MS = 5000;
 
 const isValidId = (id) => /^\d{17,20}$/.test(id);
@@ -83,7 +86,7 @@ function ensureTicketButtons(components) {
 // ---------------------------------------------------------------------------
 // Creating a ticket
 // ---------------------------------------------------------------------------
-async function createTicket(interaction) {
+async function createTicket(interaction, kind = 'general') {
   const reply = (content) => interaction.editReply({ content });
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -156,7 +159,8 @@ async function createTicket(interaction) {
   }
 
   try {
-    const components = await loadTemplate(SUPPORT_FILE);
+    const templateFile = SUPPORT_FILES[kind] ?? SUPPORT_FILES.general;
+    const components = await loadTemplate(templateFile);
     walkText(components, (node) => {
       node.content = node.content
         .replaceAll('{user}', () => `<@${user.id}>`)
@@ -286,7 +290,10 @@ async function closeTicket(interaction) {
 
 export async function handleButton(interaction) {
   if (!interaction.inGuild()) return;
-  if (interaction.customId === 'ticket:create') return createTicket(interaction);
+  if (interaction.customId === 'ticket:create' || interaction.customId === 'ticket:create:general') {
+    return createTicket(interaction, 'general');
+  }
+  if (interaction.customId === 'ticket:create:hr') return createTicket(interaction, 'hr');
   if (interaction.customId === 'ticket:claim') return claimTicket(interaction);
   if (interaction.customId === 'ticket:close') return closeTicket(interaction);
 }
@@ -299,9 +306,6 @@ export default {
     if (!message.member?.permissions.has(PermissionFlagsBits.ManageGuild)) return;
     try {
       const components = await loadTemplate(DASHBOARD_FILE);
-      if (!JSON.stringify(components).includes('"ticket:create"')) {
-        throw new Error(`${DASHBOARD_FILE} has no button with custom_id "ticket:create".`);
-      }
       await message.channel.send({ components, flags: MessageFlags.IsComponentsV2 });
     } catch (error) {
       await message.reply(`Couldn't post the dashboard: ${error.message}`).catch(() => {});

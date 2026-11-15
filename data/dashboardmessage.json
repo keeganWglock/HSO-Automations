@@ -29,7 +29,6 @@
         {
           "type": 1,
           "components": [
-            { "type": 2, "style": 1, "label": "Contact Support", "custom_id": "ticket:create" },
             { "type": 2, "style": 5, "label": "Public Database", "url": "https://docs.google.com/spreadsheets/d/1-UihzOm57pAMef4VKL9synKKSdWwDsoUwrWHnYRxjEE/edit?usp=drivesdk" },
             { "type": 2, "style": 5, "label": "Roblox Group", "url": "https://www.roblox.com/communities/492656420/vcfsrp-Whitelisted" }
           ]

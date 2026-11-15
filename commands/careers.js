@@ -7,7 +7,6 @@ import {
   MessageFlags,
   ModalBuilder,
   PermissionFlagsBits,
-  StringSelectMenuBuilder,
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
@@ -31,57 +30,59 @@ const DM_FILE = 'careersdmmessage.json';
 const APPROVE_FILE = 'careersapprovemessage.json';
 const DENY_FILE = 'careersdenymessage.json';
 
-// `label` (max 45) and `description` (max 100) are what the applicant sees in the form.
-// `question` is the full wording shown to reviewers in the application log (max 256).
+const ACTIVITY_QUESTION = 'How active are you on a scale from 1-10 (with 10 being the most active)?';
+
 const QUESTIONS = [
   {
+    id: 'activity',
+    question: ACTIVITY_QUESTION,
+  },
+  {
     id: 'q2',
-    label: 'Why do you want to work with HCSO?',
     question: 'Why do you want to work with HCSO?',
-    min: 20,
   },
   {
     id: 'q3',
-    label: 'Why should we accept you over others?',
-    description: 'Answer in 2+ sentences.',
     question: 'Why should we accept you over other applicants? (2+ sentences)',
-    min: 40,
   },
   {
     id: 'q4',
-    label: '10-11 Situation',
-    description: 'You pull someone over for felony speeding (3+ sentences)',
-    question:
-      'You pull someone over for felony speeding. How do you handle the situation? (3+ sentences)',
-    min: 60,
+    question: 'You pull someone over for felony speeding. How do you handle the situation? (3+ sentences)',
   },
   {
     id: 'q5',
-    label: 'What is a 10-80?',
-    description: "Explain what a 10-80 is.",
-    question:
-      "What is a 10-80?",
-    min: 60,
+    question: 'What is a 10-80?',
   },
   {
     id: 'q6',
-    label: 'What is a 10-26?',
-    description: "Explain what a 10-26 is.",
-    question:
-      "What is a 10-26? (3+ sentences)",
-    min: 60,
+    question: 'What is a 10-26? (3+ sentences)',
   },
   {
     id: 'q7',
-    label: 'Is there anything else you would want us to know?',
-    description: "Anything else you want us to know?",
-    question:
-      "Is there anything else you would want us to know? (3+ sentences)",
-    min: 60,
+    question: 'Is there anything else you would want us to know? (3+ sentences)',
   },
 ];
-const ACTIVITY_QUESTION = 'How active are you on a scale from 1-10 (with 10 being the most active)?';
-const ANSWER_MAX = 800;
+
+const HR_QUESTIONS = [
+  ...QUESTIONS,
+  {
+    id: 'q8',
+    question: 'Why do you believe you are a strong fit for a high-ranking position within HCSO?',
+  },
+];
+
+const APPLICATION_TYPES = {
+  general: {
+    label: 'General Application',
+    title: 'New General Career Application',
+    questions: QUESTIONS,
+  },
+  hr: {
+    label: 'High Ranking Application',
+    title: 'New High Ranking Career Application',
+    questions: HR_QUESTIONS,
+  },
+};
 
 const MODAL_ID = 'careers:modal';
 const DENY_MODAL_PREFIX = 'careers:denymodal:';
@@ -91,15 +92,21 @@ export function isCareersInteraction(customId) {
   return customId.startsWith('careers:');
 }
 
-// Adds the Apply button under the text if careersmessage.json doesn't already have one.
 function ensureApplyButton(components) {
-  if (JSON.stringify(components).includes('"careers:apply"')) return components;
-  const row = { type: 1, components: [{ type: 2, style: 3, label: 'Apply', custom_id: 'careers:apply' }] };
+  const required = [
+    { type: 2, style: 3, label: 'General Application', custom_id: 'careers:apply:general' },
+    { type: 2, style: 2, label: 'High Ranking Application', custom_id: 'careers:apply:hr' },
+  ];
+  const json = JSON.stringify(components);
+  if (required.every((button) => json.includes(`"${button.custom_id}"`))) return components;
+
+  const row = { type: 1, components: required };
   const container = components.find((c) => c?.type === 17 && Array.isArray(c.components));
   if (!container) {
     components.push(row);
     return components;
   }
+
   let lastText = -1;
   container.components.forEach((c, i) => {
     if (c?.type === 10) lastText = i;
@@ -150,42 +157,78 @@ async function sendTemplateDm(user, fileName, reason = null) {
   }
 }
 
-function buildModal() {
-  const modal = new ModalBuilder().setCustomId(MODAL_ID).setTitle('HCSO Application');
+async function collectApplicationAnswers(user, questions) {
+  const dmChannel = await user.createDM();
+  const answers = [];
 
-  modal.addLabelComponents(
-    new LabelBuilder()
-      .setLabel('How active are you?')
-      .setDescription('Scale of 1-10, with 10 being the most active.')
-      .setStringSelectMenuComponent(
-        new StringSelectMenuBuilder()
-          .setCustomId('activity')
-          .setPlaceholder('Select 1-10')
-          .setRequired(true)
-          .addOptions(
-            Array.from({ length: 10 }, (_, i) => ({
-              label: i === 0 ? '1 (least active)' : i === 9 ? '10 (most active)' : String(i + 1),
-              value: String(i + 1),
-            })),
-          ),
-      ),
-  );
-
-  for (const q of QUESTIONS) {
-    const label = new LabelBuilder()
-      .setLabel(q.label)
-      .setTextInputComponent(
-        new TextInputBuilder()
-          .setCustomId(q.id)
-          .setStyle(TextInputStyle.Paragraph)
-          .setMinLength(q.min)
-          .setMaxLength(ANSWER_MAX)
-          .setRequired(true),
-      );
-    if (q.description) label.setDescription(q.description);
-    modal.addLabelComponents(label);
+  for (let index = 0; index < questions.length; index += 1) {
+    const question = questions[index];
+    while (true) {
+      await dmChannel.send(`**Question ${index + 1}/${questions.length}**\n${question.question}`);
+      const collected = await dmChannel.awaitMessages({
+        filter: (message) => message.author.id === user.id && !message.author.bot,
+        max: 1,
+        time: 600_000,
+        errors: ['time'],
+      });
+      const answer = collected.first()?.content?.trim();
+      if (answer && answer.length > 0) {
+        answers.push({ question: question.question, answer });
+        break;
+      }
+      await dmChannel.send('❌ Please provide an answer before continuing.');
+    }
   }
-  return modal;
+
+  return answers;
+}
+
+async function startApplication(interaction, type = 'general') {
+  const config = APPLICATION_TYPES[type] ?? APPLICATION_TYPES.general;
+  const sendReply = async (content) => {
+    if (interaction.deferred || interaction.replied) {
+      return interaction.followUp({ content, flags: MessageFlags.Ephemeral });
+    }
+    return interaction.reply({ content, flags: MessageFlags.Ephemeral });
+  };
+
+  try {
+    await sendReply('I sent the application questions in your DMs. Please answer each one there.');
+    const answers = await collectApplicationAnswers(interaction.user, config.questions);
+
+    const activityAnswer = answers.find((answer) => answer.question === ACTIVITY_QUESTION)?.answer ?? 'Not provided';
+    const embed = new EmbedBuilder()
+      .setTitle(config.title)
+      .setColor(type === 'hr' ? '#f39c12' : '#fbbc04')
+      .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
+      .setThumbnail(interaction.user.displayAvatarURL())
+      .setDescription(`**Applicant:** <@${interaction.user.id}> (${interaction.user.username})\n**Applicant ID:** ${interaction.user.id}`)
+      .addFields(
+        { name: ACTIVITY_QUESTION, value: activityAnswer, inline: false },
+        ...answers
+          .filter((answer) => answer.question !== ACTIVITY_QUESTION)
+          .map((answer) => ({ name: answer.question, value: answer.answer, inline: false })),
+      )
+      .setFooter({ text: `Applicant ID: ${interaction.user.id}` })
+      .setTimestamp();
+
+    const buttons = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`careers:approve:${interaction.user.id}`).setLabel('Approve').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`careers:deny:${interaction.user.id}`).setLabel('Deny').setStyle(ButtonStyle.Danger),
+    );
+
+    const channel = await fetchSendableChannel(interaction.client, APPLICATION_CHANNEL_ID);
+    const message = await channel.send({ embeds: [embed], components: [buttons], allowedMentions: { parse: [] } });
+    setPending(interaction.user.id, message.id);
+
+    const dmProblem = await sendTemplateDm(interaction.user, DM_FILE);
+    await sendReply(
+      `✅ Your ${config.label.toLowerCase()} was submitted.${dmProblem ? `\n⚠️ I couldn't send you a confirmation DM (${dmProblem}).` : ''}`,
+    );
+  } catch (error) {
+    console.error('[CAREERS] Could not submit the DM application:', error);
+    await sendReply(`❌ ${error.message || 'I could not finish your application. Please try again.'}`);
+  }
 }
 
 function buildDenyModal(applicantId) {
@@ -210,7 +253,8 @@ function buildDenyModal(applicantId) {
 export async function handleButton(interaction) {
   if (!interaction.inGuild()) return;
 
-  if (interaction.customId === 'careers:apply') {
+  const buttonType = interaction.customId === 'careers:apply:hr' ? 'hr' : 'general';
+  if (interaction.customId === 'careers:apply' || interaction.customId === 'careers:apply:general' || interaction.customId === 'careers:apply:hr') {
     if (!isValidId(APPLICATION_CHANNEL_ID)) {
       return interaction.reply({
         content: '❌ Applications are not set up yet (APPLICATION_CHANNEL_ID in commands/careers.js).',
@@ -223,7 +267,7 @@ export async function handleButton(interaction) {
         flags: MessageFlags.Ephemeral,
       });
     }
-    return interaction.showModal(buildModal());
+    return startApplication(interaction, buttonType);
   }
 
   const [, decision, applicantId] = interaction.customId.split(':');
@@ -231,7 +275,6 @@ export async function handleButton(interaction) {
     return reviewApplication(interaction, 'approve', applicantId);
   }
   if (decision === 'deny' && isValidId(applicantId)) {
-    // Denying asks for a reason first; the decision is made when the form is submitted.
     if (!canUseStaffCommands(interaction.member, getGuildConfig(interaction.guildId))) {
       return interaction.reply({ content: "You don't have permission to review applications.", flags: MessageFlags.Ephemeral });
     }
@@ -242,9 +285,6 @@ export async function handleButton(interaction) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Submitting an application
-// ---------------------------------------------------------------------------
 export async function handleModal(interaction) {
   if (interaction.customId.startsWith(DENY_MODAL_PREFIX)) {
     const applicantId = interaction.customId.slice(DENY_MODAL_PREFIX.length);
@@ -256,58 +296,6 @@ export async function handleModal(interaction) {
     return reviewApplication(interaction, 'deny', applicantId, reason);
   }
   if (interaction.customId !== MODAL_ID) return;
-  const user = interaction.user;
-
-  if (!interaction.inGuild() || !isValidId(APPLICATION_CHANNEL_ID)) {
-    return interaction.reply({ content: '❌ Applications are not set up yet.', flags: MessageFlags.Ephemeral });
-  }
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-  const reply = (content) => interaction.editReply({ content });
-
-  if (getPending(user.id, PENDING_EXPIRY_DAYS * 86_400_000)) {
-    return reply('❌ You already have an application waiting for review.');
-  }
-
-  const activity = interaction.fields.getStringSelectValues('activity')[0];
-  if (!activity) return reply('❌ Please select how active you are.');
-  const answers = QUESTIONS.map((q) => ({
-    question: q.question,
-    answer: interaction.fields.getTextInputValue(q.id).trim(),
-  }));
-  if (answers.some((a) => !a.answer)) return reply('❌ Every question needs an answer.');
-
-  const embed = new EmbedBuilder()
-    .setTitle('New Career Application')
-    .setColor('#fbbc04')
-    .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-    .setThumbnail(user.displayAvatarURL())
-    .setDescription(`**Applicant:** <@${user.id}> (${user.username})\n**Applicant ID:** ${user.id}`)
-    .addFields(
-      { name: ACTIVITY_QUESTION, value: `${activity}/10`, inline: false },
-      ...answers.map((a) => ({ name: a.question, value: a.answer, inline: false })),
-    )
-    .setFooter({ text: `Applicant ID: ${user.id}` })
-    .setTimestamp();
-
-  const buttons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`careers:approve:${user.id}`).setLabel('Approve').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(`careers:deny:${user.id}`).setLabel('Deny').setStyle(ButtonStyle.Danger),
-  );
-
-  let message;
-  try {
-    const channel = await fetchSendableChannel(interaction.client, APPLICATION_CHANNEL_ID);
-    message = await channel.send({ embeds: [embed], components: [buttons], allowedMentions: { parse: [] } });
-  } catch (error) {
-    console.error('[CAREERS] Could not post the application:', error);
-    return reply(`❌ Couldn't submit your application: ${error.message}`);
-  }
-  setPending(user.id, message.id);
-
-  const dmProblem = await sendTemplateDm(user, DM_FILE);
-  return reply(
-    `✅ Your application was submitted.${dmProblem ? `\n⚠️ I couldn't send you a confirmation DM (${dmProblem}).` : ''}`,
-  );
 }
 
 // ---------------------------------------------------------------------------
